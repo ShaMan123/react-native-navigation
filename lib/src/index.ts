@@ -1,5 +1,5 @@
 import { Navigation as NavigationClass } from './Navigation';
+import * as interfaces from './interfaces';
 
-const singleton = new NavigationClass();
-
-export const Navigation = singleton;
+export const Navigation = new NavigationClass();
+export const Types = interfaces;
