@@ -151,8 +151,8 @@ export class Commands {
 
     public async getStackChildrenIds(componentId: string) {
         const commandId = this.uniqueIdProvider.generate('getStackChildrenIds');
-        const result = await this.nativeCommandsSender.getStackChildrenIds(commandId, componentId);
+        const result: { componentId: string, childrenIds: string[] } = await this.nativeCommandsSender.getStackChildrenIds(commandId, componentId);
         this.commandsObserver.notify('getStackChildrenIds', { commandId, componentId });
-        return result;
+        return result.childrenIds;
     }
 }
