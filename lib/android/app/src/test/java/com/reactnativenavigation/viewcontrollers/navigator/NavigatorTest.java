@@ -28,20 +28,25 @@ import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.viewcontrollers.ChildControllersRegistry;
 import com.reactnativenavigation.viewcontrollers.ComponentViewController;
 import com.reactnativenavigation.viewcontrollers.ViewController;
+import com.reactnativenavigation.viewcontrollers.bottomtabs.BottomTabsAttacher;
 import com.reactnativenavigation.viewcontrollers.bottomtabs.BottomTabsController;
 import com.reactnativenavigation.viewcontrollers.modal.ModalStack;
 import com.reactnativenavigation.viewcontrollers.stack.StackController;
+import com.reactnativenavigation.views.BottomTabs;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,7 +76,7 @@ public class NavigatorTest extends BaseTest {
     public void beforeEach() {
         childRegistry = new ChildControllersRegistry();
         eventEmitter = Mockito.mock(EventEmitter.class);
-        overlayManager = Mockito.mock(OverlayManager.class);
+        overlayManager = spy(new OverlayManager());
         imageLoaderMock = ImageLoaderMock.mock();
         activityController = newActivityController(TestActivity.class);
         activity = activityController.create().get();
@@ -109,7 +114,7 @@ public class NavigatorTest extends BaseTest {
     @Test
     public void bindViews() {
         verify(rootPresenter).setRootContainer(uut.getRootLayout());
-        verify(modalStack).setModalsContainer(uut.getModalsLayout());
+        verify(modalStack).setModalsLayout(uut.getModalsLayout());
     }
 
     @Test
@@ -129,13 +134,13 @@ public class NavigatorTest extends BaseTest {
     public void setRoot_delegatesToRootPresenter() {
         CommandListenerAdapter listener = new CommandListenerAdapter();
         uut.setRoot(child1, listener);
-        verify(rootPresenter).setRoot(child1, uut.getDefaultOptions(), listener);
+        ArgumentCaptor<CommandListenerAdapter> captor = ArgumentCaptor.forClass(CommandListenerAdapter.class);
+        verify(rootPresenter).setRoot(eq(child1), eq(uut.getDefaultOptions()), captor.capture());
+        assertThat(captor.getValue().getListener()).isEqualTo(listener);
     }
 
     @Test
     public void setRoot_clearsSplashLayout() {
-        disableModalAnimations(child1);
-
         FrameLayout content = activity.findViewById(android.R.id.content);
         assertThat(content.getChildCount()).isEqualTo(4); // 3 frame layouts and the default splash layout
 
@@ -301,7 +306,7 @@ public class NavigatorTest extends BaseTest {
 
         stack.push(child1, new CommandListenerAdapter());
         stack.push(child2, new CommandListenerAdapter());
-        stack.setRoot(child3, new CommandListenerAdapter());
+        stack.setRoot(Collections.singletonList(child3), new CommandListenerAdapter());
 
         assertThat(stack.getChildControllers()).containsOnly(child3);
     }
@@ -346,7 +351,37 @@ public class NavigatorTest extends BaseTest {
 
     @NonNull
     private BottomTabsController newTabs(List<ViewController> tabs) {
-        return new BottomTabsController(activity, tabs, childRegistry, eventEmitter, imageLoaderMock, "tabsController", new Options(), new Presenter(activity, new Options()), new BottomTabsPresenter(tabs, new Options()), new BottomTabPresenter(activity, tabs, ImageLoaderMock.mock(), new Options()));
+        BottomTabsPresenter bottomTabsPresenter = new BottomTabsPresenter(tabs, new Options());
+        return new BottomTabsController(activity, tabs, childRegistry, eventEmitter, imageLoaderMock, "tabsController", new Options(), new Presenter(activity, new Options()), new BottomTabsAttacher(tabs, bottomTabsPresenter), bottomTabsPresenter, new BottomTabPresenter(activity, tabs, ImageLoaderMock.mock(), new Options())) {
+            @NonNull
+            @Override
+            protected BottomTabs createBottomTabs() {
+                return new BottomTabs(activity) {
+                    @Override
+                    public void superCreateItems() {
+
+                    }
+                };
+            }
+        };
+    }
+
+    @Test
+    public void findController_root() {
+        uut.setRoot(child1, new CommandListenerAdapter());
+        assertThat(uut.findController(child1.getId())).isEqualTo(child1);
+    }
+
+    @Test
+    public void findController_overlay() {
+        uut.showOverlay(child1, new CommandListenerAdapter());
+        assertThat(uut.findController(child1.getId())).isEqualTo(child1);
+    }
+
+    @Test
+    public void findController_modal() {
+        uut.showModal(child1, new CommandListenerAdapter());
+        assertThat(uut.findController(child1.getId())).isEqualTo(child1);
     }
 
     @NonNull
@@ -588,7 +623,7 @@ public class NavigatorTest extends BaseTest {
     public void destroy_destroyOverlayManager() {
         uut.setRoot(parentController, new CommandListenerAdapter());
         activityController.destroy();
-        verify(overlayManager, times(1)).destroy();
+        verify(overlayManager).destroy();
     }
 
     @Test

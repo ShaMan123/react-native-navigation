@@ -37,7 +37,7 @@
 	
 	self.eventEmitter = eventEmitter;
 	self.presenter = presenter;
-	[self.presenter bindViewController:self];
+	[self.presenter bindViewController:self viewCreator:self.creator];
 	self.options = options;
 	self.defaultOptions = defaultOptions;
 	
@@ -130,6 +130,10 @@
 }
 
 - (UIViewController *)getCurrentChild {
+	return self;
+}
+
+- (UIViewController<RNNLeafProtocol> *)getCurrentLeaf {
 	return self;
 }
 

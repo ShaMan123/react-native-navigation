@@ -7,7 +7,9 @@ import com.reactnativenavigation.TestUtils;
 import com.reactnativenavigation.mocks.TestComponentLayout;
 import com.reactnativenavigation.mocks.TestReactView;
 import com.reactnativenavigation.parse.Options;
+import com.reactnativenavigation.presentation.ComponentPresenter;
 import com.reactnativenavigation.presentation.Presenter;
+import com.reactnativenavigation.views.ComponentLayout;
 import com.reactnativenavigation.views.StackLayout;
 
 import org.junit.Test;
@@ -21,7 +23,9 @@ import static org.mockito.Mockito.when;
 
 public class ComponentViewControllerTest extends BaseTest {
     private ComponentViewController uut;
-    private IReactView view;
+    private ComponentLayout view;
+    private ComponentPresenter presenter;
+    private Options resolvedOptions = new Options();
 
     @Override
     public void beforeEach() {
@@ -30,9 +34,30 @@ public class ComponentViewControllerTest extends BaseTest {
         view = spy(new TestComponentLayout(activity, new TestReactView(activity)));
         ParentController<StackLayout> parentController = TestUtils.newStackController(activity).build();
         Presenter presenter = new Presenter(activity, new Options());
-        uut = new ComponentViewController(activity, new ChildControllersRegistry(), "componentId1", "componentName", (activity1, componentId, componentName) -> view, new Options(), presenter);
+        this.presenter = spy(new ComponentPresenter(Options.EMPTY));
+        uut = new ComponentViewController(activity, new ChildControllersRegistry(), "componentId1", "componentName", (activity1, componentId, componentName) -> view, new Options(), presenter, this.presenter) {
+            @Override
+            public Options resolveCurrentOptions(Options defaultOptions) {
+                return resolvedOptions;
+            }
+        };
         uut.setParentController(parentController);
         parentController.ensureViewIsCreated();
+    }
+
+    @Test
+    public void setDefaultOptions() {
+        Options defaultOptions = new Options();
+        uut.setDefaultOptions(defaultOptions);
+        verify(presenter).setDefaultOptions(defaultOptions);
+    }
+
+    @Test
+    public void applyOptions() {
+        Options options = new Options();
+        uut.applyOptions(options);
+        verify(view).applyOptions(options);
+        verify(presenter).applyOptions(view, resolvedOptions);
     }
 
     @Test
@@ -84,5 +109,12 @@ public class ComponentViewControllerTest extends BaseTest {
         ComponentViewController spy = spy(uut);
         spy.mergeOptions(Options.EMPTY);
         verify(spy, times(0)).performOnParentController(any());
+    }
+
+    @Test
+    public void mergeOptions_delegatesToPresenter() {
+        Options options = new Options();
+        uut.mergeOptions(options);
+        verify(presenter).mergeOptions(uut.getView(), options);
     }
 }

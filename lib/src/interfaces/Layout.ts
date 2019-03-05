@@ -1,6 +1,6 @@
-import { Options, OptionsSplitView } from './Options';
+import { Options } from './Options';
 
-export interface LayoutComponent {
+export interface LayoutComponent<P = {}> {
   /**
    * Component reference id, Auto generated if empty
    */
@@ -16,7 +16,7 @@ export interface LayoutComponent {
   /**
    * Properties to pass down to the component
    */
-  passProps?: object;
+  passProps?: P;
 }
 
 export interface LayoutStackChildren {
@@ -82,11 +82,15 @@ export interface LayoutSideMenu {
   /**
    * Set the center view
    */
-  center?: Layout;
+  center: Layout;
   /**
    * Set the right side bar
    */
   right?: LayoutStackChildren;
+  /**
+   * Set the bottom tabs options
+   */
+  options?: Options;
 }
 
 export interface LayoutSplitView {
@@ -106,23 +110,57 @@ export interface LayoutSplitView {
   /**
    * Configure split view
    */
-  options?: OptionsSplitView;
+  options?: Options;
+}
+
+export interface TopTabs {
+  /**
+   * Set the layout's id so Navigation.mergeOptions can be used to update options
+   */
+  id?: string;
+  /**
+   * Set the children screens
+   */
+  children?: any[];
+  /**
+   * Configure top tabs
+   */
+  options?: Options;
 }
 
 export interface LayoutRoot {
   /**
    * Set the root
    */
-  root?: Layout;
+  root: Layout;
   modals?: any;
   overlays?: any;
 }
 
-export interface Layout {
+export interface ExternalComponent {
+  /**
+   * Set the screen's id so Navigation.mergeOptions can be used to update options
+   */
+  id?: string;
+  /**
+   * Name of your component
+   */
+  name: string | number;
+  /**
+   * Configure component options
+   */
+  options?: Options;
+  /**
+   * Properties to pass down to the component
+   */
+  passProps?: object;
+}
+
+export interface Layout<P = {}> {
   /**
    * Set the component
    */
-  component?: LayoutComponent;
+  component?: LayoutComponent<P>;
   /**
    * Set the stack
    */
@@ -139,4 +177,12 @@ export interface Layout {
    * Set the split view
    */
   splitView?: LayoutSplitView;
+  /**
+   * Set the top tabs
+   */
+  topTabs?: TopTabs;
+  /**
+   * Set the external component
+   */
+  externalComponent?: ExternalComponent;
 }

@@ -31,6 +31,7 @@
 	self.presenter = presenter;
 	[self.presenter bindViewController:self];
 	[self setViewControllers:childViewControllers];
+	[self.presenter applyOptionsOnInit:self.options];
 	
 	return self;
 }
@@ -79,7 +80,11 @@
 }
 
 - (UIViewController *)getCurrentChild {
-	return ((UIViewController<RNNParentProtocol>*)self.selectedViewController).getCurrentChild;
+	return self.selectedViewController;
+}
+
+- (UIViewController<RNNLeafProtocol> *)getCurrentLeaf {
+	return [[self getCurrentChild] getCurrentLeaf];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

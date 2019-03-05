@@ -53,10 +53,6 @@ const NSInteger TOP_BAR_TRANSPARENT_TAG = 78264803;
 	[self.options overrideOptions:options];
 }
 
-- (UITabBarItem *)tabBarItem {
-	return self.viewControllers.firstObject.tabBarItem;
-}
-
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
 	return self.getCurrentChild.supportedInterfaceOrientations;
 }
@@ -95,6 +91,10 @@ const NSInteger TOP_BAR_TRANSPARENT_TAG = 78264803;
 
 - (UIViewController *)getCurrentChild {
 	return ((UIViewController<RNNParentProtocol>*)self.topViewController);
+}
+
+- (UIViewController<RNNLeafProtocol> *)getCurrentLeaf {
+	return [[self getCurrentChild] getCurrentLeaf];
 }
 
 - (UIViewController *)childViewControllerForStatusBarStyle {

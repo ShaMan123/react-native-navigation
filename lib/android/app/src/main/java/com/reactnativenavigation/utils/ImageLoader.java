@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.facebook.react.views.imagehelper.ResourceDrawableIdHelper;
-import com.reactnativenavigation.BuildConfig;
 import com.reactnativenavigation.NavigationApplication;
 
 import java.io.FileNotFoundException;
@@ -32,6 +31,16 @@ public class ImageLoader {
     }
 
     private static final String FILE_SCHEME = "file";
+
+    @Nullable
+    public Drawable loadIcon(Context context, String uri) {
+        try {
+            return getDrawable(context, uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public void loadIcon(Context context, String uri, ImagesLoadingListener listener) {
         try {
@@ -56,13 +65,18 @@ public class ImageLoader {
 
     @NonNull
     private Drawable getDrawable(Context context, String source) throws IOException {
-        if (BuildConfig.DEBUG) {
-            return readJsDevImage(context, source);
-        } else if (isLocalFile(Uri.parse(source))) {
-            return loadFile(source);
+        Drawable drawable;
+
+        if (isLocalFile(Uri.parse(source))) {
+            drawable = loadFile(source);
         } else {
-            return loadResource(source);
+            drawable = loadResource(source);
+            if (drawable == null || NavigationApplication.instance.isDebug()) {
+                drawable = readJsDevImage(context, source);
+            }
         }
+
+        return drawable;
     }
 
     @NonNull

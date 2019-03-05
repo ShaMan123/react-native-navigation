@@ -19,6 +19,12 @@
 	return self;
 }
 
+- (void)willMoveToParentViewController:(UIViewController *)parent {
+	if (parent) {
+		[_presenter applyOptionsOnWillMoveToParentViewController:self.resolveOptions];
+	}
+}
+
 - (void)onChildWillAppear {
 	[_presenter applyOptions:self.resolveOptions];
 	[((UIViewController<RNNParentProtocol> *)self.parentViewController) onChildWillAppear];
@@ -48,7 +54,11 @@
 }
 
 - (UIViewController *)getCurrentChild {
-	return self;
+	return self.viewControllers[0];
+}
+
+- (UIViewController<RNNLeafProtocol> *)getCurrentLeaf {
+	return [[self getCurrentChild] getCurrentLeaf];
 }
 
 @end

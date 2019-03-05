@@ -25,8 +25,9 @@
 	
 	self.layoutInfo = layoutInfo;
 	
-	self.openDrawerGestureModeMask = MMOpenDrawerGestureModeAll;
 	self.closeDrawerGestureModeMask = MMCloseDrawerGestureModeAll;
+	
+	[self.presenter applyOptionsOnInit:self.resolveOptions];
 	
 	// Fixes #3697
 	[self setExtendedLayoutIncludesOpaqueBars:YES];
@@ -39,10 +40,6 @@
 	if (parent) {
 		[_presenter applyOptionsOnWillMoveToParentViewController:self.resolveOptions];
 	}
-}
-
-- (UITabBarItem *)tabBarItem {
-	return self.center.tabBarItem;
 }
 
 - (void)onChildWillAppear {
@@ -79,9 +76,11 @@
 	switch (side) {
 		case MMDrawerSideRight:
 			self.maximumRightDrawerWidth = width;
+			[self.right setWidth:width];
 			break;
 		case MMDrawerSideLeft:
 			self.maximumLeftDrawerWidth = width;
+			[self.left setWidth:width];
 		default:
 			break;
 	}
@@ -113,7 +112,6 @@
 		default:
 			break;
 	}
-	self.openDrawerGestureModeMask = enabled ? MMOpenDrawerGestureModeAll : MMOpenDrawerGestureModeNone;
 }
 
 -(void)setControllers:(NSArray*)controllers {
@@ -158,7 +156,11 @@
 }
 
 - (UIViewController<RNNLayoutProtocol> *)getCurrentChild {
-	return [self.center getCurrentChild];
+	return self.center;
+}
+
+- (UIViewController<RNNLeafProtocol> *)getCurrentLeaf {
+	return [[self getCurrentChild] getCurrentLeaf];
 }
 
 @end

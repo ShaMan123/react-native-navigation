@@ -14,7 +14,6 @@
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
 	self = [super init];
-	
 	self.visible = [BoolParser parse:dict key:@"visible"];
 	self.hideOnScroll = [BoolParser parse:dict key:@"hideOnScroll"];
 	self.leftButtonColor = [ColorParser parse:dict key:@"leftButtonColor"];
@@ -26,6 +25,7 @@
 	self.animate = [BoolParser parse:dict key:@"animate"];
 	self.searchBar = [BoolParser parse:dict key:@"searchBar"];
 	self.searchBarHiddenWhenScrolling = [BoolParser parse:dict key:@"searchBarHiddenWhenScrolling"];
+	self.hideNavBarOnFocusSearchBar = [BoolParser parse:dict key:@"hideNavBarOnFocusSearchBar"];
 	self.testID = [TextParser parse:dict key:@"testID"];
 	self.barStyle = [TextParser parse:dict key:@"barStyle"];
 	self.searchBarPlaceholder = [TextParser parse:dict key:@"searchBarPlaceholder"];
@@ -57,66 +57,8 @@
 	self.leftButtons = dict[@"leftButtons"];
 	self.rightButtons = dict[@"rightButtons"];
 	
-
 	return self;
 }
 
-- (void)applyOn:(UIViewController*)viewController {
-	if (self.rightButtons || self.leftButtons) {
-		_navigationButtons = [[RNNNavigationButtons alloc] initWithViewController:(RNNRootViewController*)viewController];
-		[_navigationButtons applyLeftButtons:self.leftButtons rightButtons:self.rightButtons defaultLeftButtonStyle:self.leftButtonStyle defaultRightButtonStyle:self.rightButtonStyle];
-	}
-	
-	self.rightButtons = nil;
-	self.leftButtons = nil;
-}
-
-//- (void)setRightButtonColor:(NSNumber *)rightButtonColor {
-//	_rightButtonColor = rightButtonColor;
-//	_rightButtonStyle.color = rightButtonColor;
-//}
-//
-//- (void)setRightButtonDisabledColor:(NSNumber *)rightButtonDisabledColor {
-//	_rightButtonDisabledColor = rightButtonDisabledColor;
-//	_rightButtonStyle.disabledColor = rightButtonDisabledColor;
-//}
-//
-//- (void)setLeftButtonColor:(NSNumber *)leftButtonColor {
-//	_leftButtonColor = leftButtonColor;
-//	_leftButtonStyle.color = leftButtonColor;
-//}
-//
-//- (void)setLeftButtonDisabledColor:(NSNumber *)leftButtonDisabledColor {
-//	_leftButtonDisabledColor = leftButtonDisabledColor;
-//	_leftButtonStyle.disabledColor = leftButtonDisabledColor;
-//}
-
-//- (void)setRightButtons:(id)rightButtons {
-//	if ([rightButtons isKindOfClass:[NSArray class]]) {
-//		_rightButtons = rightButtons;
-//	} else if ([rightButtons isKindOfClass:[NSDictionary class]]) {
-//		if (rightButtons[@"id"]) {
-//			_rightButtons = @[rightButtons];
-//		} else {
-//			[_rightButtonStyle mergeWith:rightButtons];
-//		}
-//	} else {
-//		_rightButtons = rightButtons;
-//	}
-//}
-//
-//- (void)setLeftButtons:(id)leftButtons {
-//	if ([leftButtons isKindOfClass:[NSArray class]]) {
-//		_leftButtons = leftButtons;
-//	} else if ([leftButtons isKindOfClass:[NSDictionary class]]) {
-//		if (leftButtons[@"id"]) {
-//			_leftButtons = @[leftButtons];
-//		} else {
-//			[_leftButtonStyle mergeWith:leftButtons];
-//		}
-//	} else {
-//		_leftButtons = leftButtons;
-//	}
-//}
 
 @end

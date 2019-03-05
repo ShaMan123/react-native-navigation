@@ -11,7 +11,7 @@ typedef NS_ENUM(NSInteger, RNNSideMenuChildType) {
 @interface RNNSideMenuChildVC : UIViewController <RNNParentProtocol>
 
 @property (readonly) RNNSideMenuChildType type;
-@property (readonly) UIViewController<RNNParentProtocol> *child;
+@property (readonly) UIViewController<RNNLayoutProtocol> *child;
 
 @property (nonatomic, retain) RNNLayoutInfo* layoutInfo;
 @property (nonatomic, retain) RNNViewControllerPresenter* presenter;
@@ -19,5 +19,7 @@ typedef NS_ENUM(NSInteger, RNNSideMenuChildType) {
 @property (nonatomic, strong) RNNNavigationOptions* defaultOptions;
 
 - (instancetype)initWithLayoutInfo:(RNNLayoutInfo *)layoutInfo childViewControllers:(NSArray *)childViewControllers options:(RNNNavigationOptions *)options defaultOptions:(RNNNavigationOptions *)defaultOptions presenter:(RNNViewControllerPresenter *)presenter type:(RNNSideMenuChildType)type;
+
+- (void)setWidth:(CGFloat)width;
 
 @end
